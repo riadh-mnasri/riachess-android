@@ -272,7 +272,20 @@ export default function AnalysisScreen() {
       {header}
 
       <View style={{ width: boardSize, gap: 8 }}>
-        <EvalBar evaluation={engineOn || review ? shownEval : null} orientation={orientation} width={boardSize} />
+        <EvalBar
+          evaluation={engineOn || review || isTerminal ? shownEval : null}
+          orientation={orientation}
+          width={boardSize}
+          label={
+            current.status.kind === "checkmate"
+              ? current.status.winner === "w"
+                ? "1-0"
+                : "0-1"
+              : current.status.kind === "draw"
+                ? "½-½"
+                : undefined
+          }
+        />
         <Board
           fen={fen}
           size={boardSize}

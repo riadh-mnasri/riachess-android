@@ -4,14 +4,21 @@
 
 Android chess app by the [RiaChess](https://riachess.fr) club. The code (Expo / React Native) can also be built for iOS. The goal: one app for playing (pass and play, against the computer, online), puzzles, game analysis and learning openings and endgames, with the club's coaching follow-up.
 
-<p>
-  <img src="docs/screenshots/home.png" alt="Home screen" width="280" />
-  &nbsp;
-  <img src="docs/screenshots/bot-game.png" alt="Game against Stockfish" width="280" />
-</p>
+## Screenshots
+
+| Home | Pass and play | Game over |
+| --- | --- | --- |
+| <img src="docs/screenshots/home.png" alt="Home" width="240" /> | <img src="docs/screenshots/local-game.png" alt="Pass and play, legal squares shown" width="240" /> | <img src="docs/screenshots/game-over.png" alt="Game over screen" width="240" /> |
+| **Computer setup** | **Game against Stockfish** | **Puzzles** |
+| <img src="docs/screenshots/bot-setup.png" alt="Level and side choice" width="240" /> | <img src="docs/screenshots/bot-game.png" alt="Game against Stockfish" width="240" /> | <img src="docs/screenshots/puzzles.png" alt="Puzzle trainer" width="240" /> |
+| **Live analysis** | **Game review** | **PGN import** |
+| <img src="docs/screenshots/analysis.png" alt="Analysis with best move arrow" width="240" /> | <img src="docs/screenshots/review.png" alt="Review: chart and accuracy" width="240" /> | <img src="docs/screenshots/import.png" alt="PGN game import" width="240" /> |
+
+Analysis and review: the Opera Game, Morphy against the Duke of Brunswick and Count Isouard (Paris, 1858).
 
 ## Contents
 
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [Try it on an Android phone](#try-it-on-an-android-phone)
 - [Tech stack](#tech-stack)
@@ -41,6 +48,22 @@ Android chess app by the [RiaChess](https://riachess.fr) club. The code (Expo / 
 
 **Play the computer**: Stockfish 19, 8 levels, play White, Black or a random side. The engine thinks without blocking the interface. "Undo" takes back both your move and the computer's.
 
+**Analysis**
+- Continuous analysis of the position by Stockfish at full strength: evaluation bar, best line in algebraic notation, search depth.
+- Best move arrow on the board; engine can be switched on and off.
+- Game review: every position is evaluated, inaccuracies (?!), mistakes (?) and blunders (??) are flagged with Lichess thresholds.
+- Accuracy of each player in %, clickable evaluation chart to jump to a move.
+- Move by move navigation; playing another move starts a new line.
+- PGN import (Lichess, chess.com...), free board, "Analyse the game" button at the end of a game.
+
+**Puzzles**
+- 2,464 puzzles from the Lichess database, offline, rated 400 to 2,800.
+- Puzzle picked as close as possible to the player's rating, never the same one twice.
+- Theme filters: mates, forks, pins, skewers, sacrifices, endgames.
+- Automatic opponent replies; any mating move is accepted.
+- Elo style rating, current streak and solved count, kept on the device.
+- Retry or show the solution after a mistake.
+
 **During a game**
 - Check, checkmate and draw detection: stalemate, threefold repetition, 50-move rule, insufficient material.
 - Captured pieces and material balance shown for each side.
@@ -48,11 +71,11 @@ Android chess app by the [RiaChess](https://riachess.fr) club. The code (Expo / 
 - Copy the game as PGN, with the date and player names.
 - Haptic feedback on every move on phones.
 
-**General**: French and English interface (device language by default, switch from the home screen), the club's navy and gold theme.
+**General**: French and English interface (device language by default, switch from the home screen), the club's navy and gold theme, copyright notice at the bottom of every screen.
 
 ### Coming next
 
-Online play through Lichess, puzzles, analysis, Learn section, RiaChess account: see the [roadmap](#roadmap).
+Online play through Lichess, Learn section, RiaChess account: see the [roadmap](#roadmap).
 
 ## Try it on an Android phone
 
@@ -88,10 +111,17 @@ src/
     index.tsx             home
     play/local.tsx        pass and play
     play/bot.tsx          game against the computer
+    analysis.tsx          analysis and game review
+    puzzles.tsx           puzzles
   domain/                 pure logic, no React or React Native
     game.ts               game state, moves, status, material, PGN
     bot.ts                computer levels, move choice
+    analysis.ts           winning chances, move labels, accuracy
+    puzzle.ts             puzzle flow, rating, puzzle choice
+  data/
+    puzzles.json          selection from the Lichess puzzle database
   infrastructure/
+    storage/              puzzle progress (AsyncStorage)
     engine/               Stockfish adapters
       uci.ts              UCI protocol, request queue
       EngineHost.tsx      Android and iOS: hidden WebView
@@ -100,10 +130,12 @@ src/
   ui/
     board/                board, geometry, SVG pieces
     game/GameView.tsx     game screen shared by all modes
+    analysis/             evaluation bar, review chart
     theme.ts              club colors
   i18n/                   FR/EN strings
 scripts/
   build-engine.mjs        embeds Stockfish at install time
+  build-puzzles.mjs       extracts puzzles from the Lichess database
 ```
 
 **Principles**
@@ -132,6 +164,21 @@ The app embeds **Stockfish 19 "lite", single-threaded**: 1.8 MB of WASM with a s
 | 8 | Maximum | 20 | 18 | 1 s | 0 % |
 
 Even at its weakest setting, Stockfish is too strong for a beginner. The first levels therefore play some of their moves at random. These settings live in `src/domain/bot.ts`.
+
+**Analysis**: the engine plays at full strength (Skill Level 20). Continuous analysis goes to depth 18. The review evaluates every position at depth 12, with at most 400 ms per position. Moves are labelled from the loss of winning chances (Lichess curve): 0.1 for an inaccuracy, 0.2 for a mistake, 0.3 for a blunder.
+
+## Puzzles
+
+Puzzles come from the [open Lichess database](https://database.lichess.org/#puzzles) (CC0 license, about 6 million puzzles). `scripts/build-puzzles.mjs` keeps a selection:
+- popular puzzles (popularity ≥ 85), played at least 2,000 times, with a reliable rating (deviation ≤ 80);
+- at most 125 puzzles per 100-point band, from 400 to 2,800, drawn at random in a reproducible way.
+
+To rebuild the selection (`zstd` tool required):
+
+```bash
+curl -O https://database.lichess.org/lichess_db_puzzle.csv.zst
+node scripts/build-puzzles.mjs lichess_db_puzzle.csv.zst
+```
 
 ## Run locally
 
@@ -166,9 +213,9 @@ npm run typecheck
 ```
 
 The tests cover:
-- **the domain**: legal moves, checkmate, stalemate, promotion, undo, material, PGN export, computer levels and move choice;
+- **the domain**: legal moves, checkmate, stalemate, promotion, undo, material, PGN import and export, computer levels and move choice, winning chances, move labels, accuracy, puzzle flow, Elo rating, puzzle choice;
 - **board geometry**: touched square for each orientation, FEN parsing;
-- **the UCI adapter**, with a fake engine: startup, best move, requests handled one after another.
+- **the UCI adapter**, with a fake engine: startup, best move, analysis, `info` line parsing, requests handled one after another.
 
 Tests follow a `Given / When / Then` structure.
 
@@ -195,8 +242,8 @@ To publish on Google Play, a personal developer account must first run a closed 
 | --- | --- | --- |
 | 1. Foundations | Board, pass and play, PGN, FR/EN | Done |
 | 2. Play the computer | Stockfish, 8 levels | Done |
-| 3. Analysis | Evaluation bar, best moves, mistake labels, Lichess / chess.com import | Planned |
-| 4. Puzzles | Offline Lichess puzzle database (CC0), rating, themes | Planned |
+| 3. Analysis | Evaluation bar, best moves, review, accuracy, PGN import | Done |
+| 4. Puzzles | Offline Lichess puzzles (CC0), rating, themes | Done |
 | 5. Learn | Opening repertoires with spaced repetition, endgame lessons | Planned |
 | 6. Online play | Games on Lichess through the official API | Planned |
 | 7. Accounts | Sign in with the riachess.fr account, premium status | Planned |
@@ -214,5 +261,6 @@ To publish on Google Play, a personal developer account must first run a closed 
 - [Stockfish](https://stockfishchess.org) (GPLv3), through Nathan Rugg's WASM port [Stockfish.js](https://github.com/nmrugg/stockfish.js).
 - "cburnett" pieces by Colin M.L. Burnett (GPLv2+), the default [Lichess](https://lichess.org) piece set.
 - [chess.js](https://github.com/jhlywa/chess.js) (BSD-2-Clause).
+- Puzzles: [Lichess database](https://database.lichess.org/#puzzles) (CC0).
 
 © 2026 Riadh MNASRI

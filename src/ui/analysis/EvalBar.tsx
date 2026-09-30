@@ -9,14 +9,17 @@ export function EvalBar({
   evaluation,
   orientation,
   width,
+  label: forcedLabel,
 }: {
   evaluation: Evaluation | null;
   orientation: Color;
   width: number;
+  /** Texte à afficher à la place de l'évaluation (résultat d'une partie terminée). */
+  label?: string;
 }) {
   const whiteShare = evaluation ? (winChances(evaluation) + 1) / 2 : 0.5;
   const leftShare = orientation === "w" ? whiteShare : 1 - whiteShare;
-  const label = evaluation ? formatEval(evaluation) : "…";
+  const label = forcedLabel ?? (evaluation ? formatEval(evaluation) : "…");
   const whiteLeads = whiteShare >= 0.5;
 
   return (

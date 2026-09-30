@@ -4,14 +4,21 @@
 
 Application Android d'échecs du club [RiaChess](https://riachess.fr). Le code (Expo / React Native) peut aussi être compilé pour iOS. Objectif : réunir dans une seule appli le jeu (à deux, contre l'ordinateur, en ligne), les problèmes, l'analyse des parties et l'apprentissage des ouvertures et des finales, avec le suivi pédagogique du club.
 
-<p>
-  <img src="docs/screenshots/home.png" alt="Écran d'accueil" width="280" />
-  &nbsp;
-  <img src="docs/screenshots/bot-game.png" alt="Partie contre Stockfish" width="280" />
-</p>
+## Aperçu
+
+| Accueil | Partie à deux | Fin de partie |
+| --- | --- | --- |
+| <img src="docs/screenshots/home.png" alt="Accueil" width="240" /> | <img src="docs/screenshots/local-game.png" alt="Partie à deux, cases jouables affichées" width="240" /> | <img src="docs/screenshots/game-over.png" alt="Écran de fin de partie" width="240" /> |
+| **Réglages contre l'ordinateur** | **Partie contre Stockfish** | **Problèmes** |
+| <img src="docs/screenshots/bot-setup.png" alt="Choix du niveau et de la couleur" width="240" /> | <img src="docs/screenshots/bot-game.png" alt="Partie contre Stockfish" width="240" /> | <img src="docs/screenshots/puzzles.png" alt="Entraînement aux problèmes" width="240" /> |
+| **Analyse en direct** | **Revue de la partie** | **Import PGN** |
+| <img src="docs/screenshots/analysis.png" alt="Analyse avec flèche du meilleur coup" width="240" /> | <img src="docs/screenshots/review.png" alt="Revue : courbe et précision" width="240" /> | <img src="docs/screenshots/import.png" alt="Import d'une partie PGN" width="240" /> |
+
+Analyse et revue : partie de l'Opéra, Morphy contre le duc de Brunswick et le comte Isouard (Paris, 1858).
 
 ## Sommaire
 
+- [Aperçu](#aperçu)
 - [Fonctionnalités](#fonctionnalités)
 - [Tester sur un téléphone Android](#tester-sur-un-téléphone-android)
 - [Stack technique](#stack-technique)
@@ -41,6 +48,22 @@ Application Android d'échecs du club [RiaChess](https://riachess.fr). Le code (
 
 **Contre l'ordinateur** : Stockfish 19, 8 niveaux, choix des Blancs, des Noirs ou au hasard. L'ordinateur réfléchit sans bloquer l'interface. « Reprendre » annule votre coup et celui de l'ordinateur.
 
+**Analyse**
+- Analyse en continu de la position par Stockfish à pleine force : barre d'évaluation, meilleure suite en notation algébrique, profondeur de calcul.
+- Flèche du meilleur coup sur l'échiquier ; moteur activable ou non.
+- Revue de la partie : chaque position est évaluée, les imprécisions (?!), erreurs (?) et gaffes (??) sont signalées avec les seuils de Lichess.
+- Précision de chaque joueur en %, courbe d'évaluation cliquable pour aller à un coup.
+- Navigation coup par coup ; jouer un autre coup ouvre une nouvelle suite.
+- Import d'une partie PGN (Lichess, chess.com...), échiquier libre, bouton « Analyser la partie » en fin de partie.
+
+**Problèmes**
+- 2 464 puzzles de la base Lichess, hors ligne, de 400 à 2 800 de classement.
+- Puzzle choisi au plus près du classement du joueur, jamais deux fois le même.
+- Filtres par thème : mats, fourchettes, clouages, enfilades, sacrifices, finales.
+- Réponses automatiques de l'adversaire ; tout coup qui donne mat est accepté.
+- Classement de type Elo, série en cours et nombre de réussites, gardés sur l'appareil.
+- Réessayer ou voir la solution après une erreur.
+
 **Pendant la partie**
 - Détection de l'échec, du mat et des nulles : pat, triple répétition, règle des 50 coups, matériel insuffisant.
 - Pièces prises et avantage matériel affichés pour chaque camp.
@@ -48,11 +71,11 @@ Application Android d'échecs du club [RiaChess](https://riachess.fr). Le code (
 - Copie de la partie au format PGN, avec la date et les noms des joueurs.
 - Retour haptique à chaque coup sur téléphone.
 
-**Général** : interface en français et en anglais (langue de l'appareil par défaut, bascule depuis l'accueil), thème bleu nuit et or du club.
+**Général** : interface en français et en anglais (langue de l'appareil par défaut, bascule depuis l'accueil), thème bleu nuit et or du club, mention de copyright en bas de chaque écran.
 
 ### À venir
 
-Jeu en ligne via Lichess, problèmes, analyse, section Apprendre, compte RiaChess : voir la [feuille de route](#feuille-de-route).
+Jeu en ligne via Lichess, section Apprendre, compte RiaChess : voir la [feuille de route](#feuille-de-route).
 
 ## Tester sur un téléphone Android
 
@@ -88,10 +111,17 @@ src/
     index.tsx             accueil
     play/local.tsx        partie à deux
     play/bot.tsx          partie contre l'ordinateur
+    analysis.tsx          analyse et revue de partie
+    puzzles.tsx           problèmes
   domain/                 logique pure, sans React ni React Native
     game.ts               état de partie, coups, statut, matériel, PGN
     bot.ts                niveaux de l'ordinateur, choix du coup
+    analysis.ts           chances de gain, classement des coups, précision
+    puzzle.ts             déroulé d'un puzzle, classement, choix du puzzle
+  data/
+    puzzles.json          sélection de la base de puzzles Lichess
   infrastructure/
+    storage/              progression sur les problèmes (AsyncStorage)
     engine/               adaptateurs vers Stockfish
       uci.ts              protocole UCI, file d'attente des demandes
       EngineHost.tsx      Android et iOS : WebView invisible
@@ -100,10 +130,12 @@ src/
   ui/
     board/                échiquier, géométrie, pièces SVG
     game/GameView.tsx     écran de partie commun aux modes de jeu
+    analysis/             barre d'évaluation, courbe de la revue
     theme.ts              couleurs du club
   i18n/                   textes FR/EN
 scripts/
   build-engine.mjs        embarque Stockfish au moment de l'installation
+  build-puzzles.mjs       extrait les puzzles de la base Lichess
 ```
 
 **Principes**
@@ -132,6 +164,21 @@ L'appli embarque **Stockfish 19 « lite », version single-thread** : 1,8 Mo de 
 | 8 | Maximum | 20 | 18 | 1 s | 0 % |
 
 Même réglé au plus faible, Stockfish reste trop fort pour un débutant. Les premiers niveaux jouent donc une partie de leurs coups au hasard. Ces réglages sont dans `src/domain/bot.ts`.
+
+**Analyse** : le moteur joue à pleine force (Skill Level 20). L'analyse en continu va jusqu'à la profondeur 18. La revue évalue chaque position à la profondeur 12, avec au plus 400 ms par position. Les coups sont classés selon la perte de chances de gain (courbe de Lichess) : 0,1 pour une imprécision, 0,2 pour une erreur, 0,3 pour une gaffe.
+
+## Problèmes
+
+Les puzzles viennent de la [base ouverte de Lichess](https://database.lichess.org/#puzzles) (licence CC0, environ 6 millions de puzzles). `scripts/build-puzzles.mjs` en garde une sélection :
+- puzzles populaires (popularité ≥ 85), joués au moins 2 000 fois, au classement fiable (écart ≤ 80) ;
+- 125 puzzles au plus par tranche de 100 points, de 400 à 2 800, tirés au hasard de façon reproductible.
+
+Pour régénérer la sélection (outil `zstd` requis) :
+
+```bash
+curl -O https://database.lichess.org/lichess_db_puzzle.csv.zst
+node scripts/build-puzzles.mjs lichess_db_puzzle.csv.zst
+```
 
 ## Démarrer en local
 
@@ -166,9 +213,9 @@ npm run typecheck
 ```
 
 Les tests couvrent :
-- **le domaine** : coups légaux, mat, pat, promotion, reprise, matériel, export PGN, niveaux et choix du coup de l'ordinateur ;
+- **le domaine** : coups légaux, mat, pat, promotion, reprise, matériel, import et export PGN, niveaux et choix du coup de l'ordinateur, chances de gain, classement des coups, précision, déroulé d'un puzzle, classement Elo, choix du puzzle ;
 - **la géométrie du plateau** : case touchée selon l'orientation, lecture du FEN ;
-- **l'adaptateur UCI**, avec un faux moteur : initialisation, meilleur coup, demandes traitées l'une après l'autre.
+- **l'adaptateur UCI**, avec un faux moteur : initialisation, meilleur coup, analyse, lecture des lignes `info`, demandes traitées l'une après l'autre.
 
 Les tests suivent la structure `Given / When / Then`.
 
@@ -195,8 +242,8 @@ Pour publier sur Google Play, un compte développeur personnel doit d'abord fair
 | --- | --- | --- |
 | 1. Fondations | Échiquier, partie à deux, PGN, FR/EN | Fait |
 | 2. Contre l'ordinateur | Stockfish, 8 niveaux | Fait |
-| 3. Analyse | Barre d'évaluation, meilleurs coups, classement des erreurs, import Lichess / chess.com | À venir |
-| 4. Problèmes | Base de puzzles Lichess (CC0) hors ligne, classement, thèmes | À venir |
+| 3. Analyse | Barre d'évaluation, meilleurs coups, revue, précision, import PGN | Fait |
+| 4. Problèmes | Puzzles Lichess (CC0) hors ligne, classement, thèmes | Fait |
 | 5. Apprendre | Répertoires d'ouvertures en répétition espacée, leçons de finales | À venir |
 | 6. Jeu en ligne | Parties sur Lichess via l'API officielle | À venir |
 | 7. Comptes | Connexion avec le compte riachess.fr, statut premium | À venir |
@@ -214,5 +261,6 @@ Pour publier sur Google Play, un compte développeur personnel doit d'abord fair
 - [Stockfish](https://stockfishchess.org) (GPLv3), dans son portage WASM [Stockfish.js](https://github.com/nmrugg/stockfish.js) de Nathan Rugg.
 - Pièces « cburnett » de Colin M.L. Burnett (GPLv2+), le jeu de pièces par défaut de [Lichess](https://lichess.org).
 - [chess.js](https://github.com/jhlywa/chess.js) (BSD-2-Clause).
+- Puzzles : [base de données Lichess](https://database.lichess.org/#puzzles) (CC0).
 
 © 2026 Riadh MNASRI

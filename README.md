@@ -1,8 +1,8 @@
-# RiaChess mobile
+# RiaChess Android
 
 [English version](README.en.md)
 
-Application mobile d'échecs du club [RiaChess](https://riachess.fr), pour Android et iPhone. Objectif : réunir dans une seule appli le jeu (à deux, contre l'ordinateur, en ligne), les problèmes, l'analyse des parties et l'apprentissage des ouvertures et des finales, avec le suivi pédagogique du club.
+Application Android d'échecs du club [RiaChess](https://riachess.fr). Le code (Expo / React Native) peut aussi être compilé pour iOS. Objectif : réunir dans une seule appli le jeu (à deux, contre l'ordinateur, en ligne), les problèmes, l'analyse des parties et l'apprentissage des ouvertures et des finales, avec le suivi pédagogique du club.
 
 <p>
   <img src="docs/screenshots/home.png" alt="Écran d'accueil" width="280" />
@@ -138,8 +138,8 @@ Même réglé au plus faible, Stockfish reste trop fort pour un débutant. Les p
 **Prérequis** : Node.js 20 ou plus récent, npm.
 
 ```bash
-git clone https://github.com/riadh-mnasri/riachess-mobile.git
-cd riachess-mobile
+git clone https://github.com/riadh-mnasri/riachess-android.git
+cd riachess-android
 npm install        # installe les dépendances et embarque Stockfish
 npm run web        # ouvre l'appli dans le navigateur : http://localhost:8190
 npm start          # serveur Metro sur le port 8190, pour Expo Go ou un build de développement

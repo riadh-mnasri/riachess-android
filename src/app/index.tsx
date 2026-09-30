@@ -11,12 +11,12 @@ import { Wordmark } from "../ui/Wordmark";
 // Partie de l'Opéra (Morphy, 1858), juste avant 17.Td8#.
 const HERO_FEN = "1n2kb1r/p4ppp/4q3/4p1B1/4P3/8/PPP2PPP/2KR4 w k - 0 17";
 
-const UPCOMING = [
-  { key: "bot", icon: "hardware-chip-outline" },
-  { key: "online", icon: "globe-outline" },
-  { key: "puzzles", icon: "extension-puzzle-outline" },
-  { key: "analysis", icon: "analytics-outline" },
-  { key: "learn", icon: "school-outline" },
+const MODES = [
+  { key: "bot", icon: "hardware-chip-outline", route: "/play/bot" },
+  { key: "online", icon: "globe-outline", route: null },
+  { key: "puzzles", icon: "extension-puzzle-outline", route: null },
+  { key: "analysis", icon: "analytics-outline", route: null },
+  { key: "learn", icon: "school-outline", route: null },
 ] as const;
 
 export default function Home() {
@@ -72,13 +72,21 @@ export default function Home() {
             </View>
         </Pressable>
 
-        <Text style={styles.sectionTitle}>{t.home.upcoming}</Text>
+        <Text style={styles.sectionTitle}>{t.home.modesTitle}</Text>
         <View style={styles.list}>
-          {UPCOMING.map(({ key, icon }, index) => (
-            <View
+          {MODES.map(({ key, icon, route }, index) => (
+            <Pressable
               key={key}
-              style={[styles.row, index < UPCOMING.length - 1 && styles.rowDivider]}
-              accessibilityState={{ disabled: true }}
+              disabled={!route}
+              onPress={() => route && router.push(route)}
+              style={({ pressed }) => [
+                styles.row,
+                index < MODES.length - 1 && styles.rowDivider,
+                !route && styles.rowSoon,
+                pressed && styles.rowPressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: !route }}
             >
               <View style={styles.iconWrap}>
                 <Ionicons name={icon} size={20} color={colors.gold} />
@@ -87,8 +95,12 @@ export default function Home() {
                 <Text style={styles.rowTitle}>{t.home.modes[key].title}</Text>
                 <Text style={styles.rowBody}>{t.home.modes[key].body}</Text>
               </View>
-              <Text style={styles.soon}>{t.home.comingSoon}</Text>
-            </View>
+              {route ? (
+                <Ionicons name="chevron-forward" size={18} color={colors.gold} />
+              ) : (
+                <Text style={styles.soon}>{t.home.comingSoon}</Text>
+              )}
+            </Pressable>
           ))}
         </View>
 
@@ -183,6 +195,8 @@ const styles = StyleSheet.create({
   },
   row: { flexDirection: "row", alignItems: "center", gap: 14, padding: 14 },
   rowDivider: { borderBottomWidth: 1, borderBottomColor: colors.border },
+  rowSoon: { opacity: 0.55 },
+  rowPressed: { backgroundColor: colors.surfaceHigh },
   iconWrap: {
     width: 40,
     height: 40,

@@ -144,11 +144,16 @@ export function resultOf(status: GameStatus): "1-0" | "0-1" | "1/2-1/2" | "*" {
   return "*";
 }
 
-export function toPgn(game: GameState, options: { date: string; event?: string }): string {
+export function toPgn(
+  game: GameState,
+  options: { date: string; event?: string; white?: string; black?: string },
+): string {
   const chess = replay(game.initialFen, game.moves);
   chess.setHeader("Event", options.event ?? "Partie amicale");
   chess.setHeader("Site", "RiaChess");
   chess.setHeader("Date", options.date);
+  if (options.white) chess.setHeader("White", options.white);
+  if (options.black) chess.setHeader("Black", options.black);
   chess.setHeader("Result", resultOf(game.status));
   if (game.initialFen !== START_FEN) {
     chess.setHeader("SetUp", "1");

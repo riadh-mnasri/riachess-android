@@ -42,3 +42,5 @@ yarn-error.*
 
 # Stockfish embarqué, régénéré au postinstall
 src/infrastructure/engine/generated/
+.vercel
+.env*

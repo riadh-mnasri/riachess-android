@@ -1,11 +1,14 @@
 // © 2026 Riadh MNASRI
 import {
   capturedMaterial,
+  gameFromPgn,
   isPromotion,
   legalDestinations,
   newGame,
   playMove,
+  positionsOf,
   toPgn,
+  truncate,
   undoMove,
 } from "../game";
 
@@ -205,5 +208,54 @@ describe("toPgn", () => {
     expect(pgn).toContain('[Site "RiaChess"]');
     expect(pgn).toContain('[Result "0-1"]');
     expect(pgn).toContain("1. f3 e5 2. g4 Qh4# 0-1");
+  });
+});
+
+describe("gameFromPgn", () => {
+  it("importe une partie PGN avec ses en-têtes", () => {
+    // Given
+    const pgn = '[Event "Test"]\n[Result "0-1"]\n\n1. f3 e5 2. g4 Qh4# 0-1';
+
+    // When
+    const game = gameFromPgn(pgn);
+
+    // Then
+    expect(game?.sanHistory).toEqual(["f3", "e5", "g4", "Qh4#"]);
+    expect(game?.status).toEqual({ kind: "checkmate", winner: "b" });
+  });
+
+  it("accepte une liste de coups sans en-têtes", () => {
+    // Given / When
+    const game = gameFromPgn("1. e4 e5 2. Nf3 Nc6");
+
+    // Then
+    expect(game?.sanHistory).toHaveLength(4);
+  });
+
+  it("refuse un texte qui n'est pas une partie", () => {
+    // Given / When / Then
+    expect(gameFromPgn("bonjour")).toBeNull();
+    expect(gameFromPgn("1. e4 e5 2. Ke3 Ke6 3. Qh8")).toBeNull();
+  });
+});
+
+describe("positionsOf et truncate", () => {
+  it("liste la position après chaque demi-coup et coupe la partie", () => {
+    // Given
+    const game = playAll([
+      ["e2", "e4"],
+      ["e7", "e5"],
+    ]);
+
+    // When
+    const positions = positionsOf(game);
+    const cut = truncate(game, 1);
+
+    // Then
+    expect(positions).toHaveLength(3);
+    expect(positions[0]).toBe(game.initialFen);
+    expect(positions[2]).toBe(game.fen);
+    expect(cut.sanHistory).toEqual(["e4"]);
+    expect(cut.fen).toBe(positions[1]);
   });
 });

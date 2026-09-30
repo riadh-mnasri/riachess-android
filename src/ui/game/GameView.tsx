@@ -108,10 +108,11 @@ export function GameView({
 
   useEffect(() => setPendingPromotion(null), [game]);
 
+  const pgnText = () =>
+    toPgn(game, { date: pgnDate(), event: pgnEvent, white: playerNames.w, black: playerNames.b });
+
   const copyPgn = async () => {
-    await Clipboard.setStringAsync(
-      toPgn(game, { date: pgnDate(), event: pgnEvent, white: playerNames.w, black: playerNames.b }),
-    );
+    await Clipboard.setStringAsync(pgnText());
     setToast(t.game.copied);
   };
 
@@ -238,6 +239,13 @@ export function GameView({
                 >
                   <Ionicons name="refresh" size={16} color={colors.canvas} />
                   <Text style={styles.primaryButtonText}>{t.game.rematch}</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push({ pathname: "/analysis", params: { pgn: pgnText() } })}
+                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                >
+                  <Ionicons name="analytics" size={16} color={colors.ivory} />
+                  <Text style={styles.secondaryButtonText}>{t.analysis.analyseGame}</Text>
                 </Pressable>
               </View>
             </View>
@@ -383,6 +391,17 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   primaryButtonText: { color: colors.canvas, fontWeight: "800", fontSize: 15 },
+  secondaryButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+  },
+  secondaryButtonText: { color: colors.ivory, fontWeight: "700", fontSize: 14 },
   status: { color: colors.muted, fontSize: 14, textAlign: "center", minHeight: 20 },
   moves: {
     flexGrow: 0,

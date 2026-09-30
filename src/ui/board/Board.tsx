@@ -1,11 +1,11 @@
 // © 2026 Riadh MNASRI
-import { memo, useMemo, useRef, useState } from "react";
+import { Fragment, memo, useMemo, useRef, useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { SvgXml } from "react-native-svg";
+import Svg, { Line, Polygon, SvgXml } from "react-native-svg";
 import type { Color } from "../../domain/game";
 import { board as palette } from "../theme";
-import { FILES, piecesFromFen, squareAt } from "./geometry";
+import { FILES, piecesFromFen, screenCell, squareAt } from "./geometry";
 import { PIECE_SVG, type PieceCode } from "./pieces";
 
 export interface BoardProps {
@@ -18,6 +18,8 @@ export interface BoardProps {
   canPick: (square: string) => boolean;
   destinations: (square: string) => string[];
   onMove: (from: string, to: string) => void;
+  /** Flèches dessinées sur le plateau (meilleur coup du moteur...). */
+  arrows?: { from: string; to: string }[];
 }
 
 export const Piece = memo(function Piece({ code, size }: { code: PieceCode; size: number }) {
@@ -43,6 +45,7 @@ export function Board({
   canPick,
   destinations,
   onMove,
+  arrows = [],
 }: BoardProps) {
   const cell = size / 8;
   const pieces = useMemo(() => piecesFromFen(fen), [fen]);
@@ -200,6 +203,42 @@ export function Board({
         accessibilityLabel={`Échiquier, position ${fen}`}
       >
         {squares}
+        {arrows.length > 0 ? (
+          <Svg style={StyleSheet.absoluteFill} pointerEvents="none" width={size} height={size}>
+            {arrows.map(({ from, to }) => {
+              const center = (square: string) => {
+                const { column, row } = screenCell(square, orientation);
+                return { x: (column + 0.5) * cell, y: (row + 0.5) * cell };
+              };
+              const start = center(from);
+              const end = center(to);
+              const length = Math.hypot(end.x - start.x, end.y - start.y);
+              const ux = (end.x - start.x) / length;
+              const uy = (end.y - start.y) / length;
+              const head = cell * 0.42;
+              const baseX = end.x - ux * head;
+              const baseY = end.y - uy * head;
+              const half = cell * 0.22;
+              return (
+                <Fragment key={`${from}${to}`}>
+                  <Line
+                    x1={start.x + ux * cell * 0.2}
+                    y1={start.y + uy * cell * 0.2}
+                    x2={baseX}
+                    y2={baseY}
+                    stroke={palette.arrow}
+                    strokeWidth={cell * 0.16}
+                    strokeLinecap="round"
+                  />
+                  <Polygon
+                    points={`${end.x},${end.y} ${baseX - uy * half},${baseY + ux * half} ${baseX + uy * half},${baseY - ux * half}`}
+                    fill={palette.arrow}
+                  />
+                </Fragment>
+              );
+            })}
+          </Svg>
+        ) : null}
         {draggedPiece ? (
           <Animated.View
             pointerEvents="none"

@@ -13,6 +13,9 @@ export const colors = {
   faint: "#5d6886",
   danger: "#e0645c",
   success: "#6fbf8e",
+  inaccuracy: "#e6c35c",
+  mistake: "#e8904a",
+  blunder: "#e0645c",
 } as const;
 
 export const board = {
@@ -23,6 +26,7 @@ export const board = {
   hover: "rgba(243, 236, 217, 0.35)",
   hint: "rgba(11, 18, 38, 0.28)",
   check: "rgba(224, 100, 92, 0.85)",
+  arrow: "rgba(212, 175, 55, 0.82)",
 } as const;
 
 export const radius = { sm: 8, md: 14, lg: 22 } as const;

@@ -162,3 +162,38 @@ export function toPgn(
   const pgn = chess.pgn();
   return /\s(1-0|0-1|1\/2-1\/2|\*)$/.test(pgn) ? pgn : `${pgn} ${resultOf(game.status)}`;
 }
+
+/** Importe une partie PGN ; null si le texte n'est pas une partie lisible. */
+export function gameFromPgn(pgn: string): GameState | null {
+  const chess = new Chess();
+  try {
+    chess.loadPgn(pgn.trim());
+  } catch {
+    return null;
+  }
+  const initialFen = chess.getHeaders().FEN ?? START_FEN;
+  const moves: MoveInput[] = chess.history({ verbose: true }).map((move) =>
+    move.promotion
+      ? { from: move.from, to: move.to, promotion: move.promotion as PromotionPiece }
+      : { from: move.from, to: move.to },
+  );
+  if (moves.length === 0) return null;
+  return snapshot(initialFen, moves, replay(initialFen, moves));
+}
+
+/** Position (FEN) après chaque demi-coup : l'indice 0 est la position de départ. */
+export function positionsOf(game: GameState): string[] {
+  const chess = new Chess(game.initialFen);
+  const fens = [chess.fen()];
+  for (const move of game.moves) {
+    chess.move(move);
+    fens.push(chess.fen());
+  }
+  return fens;
+}
+
+/** État de la partie arrêtée après `ply` demi-coups. */
+export function truncate(game: GameState, ply: number): GameState {
+  const moves = game.moves.slice(0, Math.max(0, ply));
+  return snapshot(game.initialFen, moves, replay(game.initialFen, moves));
+}

@@ -15,7 +15,7 @@ const MODES = [
   { key: "bot", icon: "hardware-chip-outline", route: "/play/bot" },
   { key: "online", icon: "globe-outline", route: null },
   { key: "puzzles", icon: "extension-puzzle-outline", route: null },
-  { key: "analysis", icon: "analytics-outline", route: null },
+  { key: "analysis", icon: "analytics-outline", route: "/analysis" },
   { key: "learn", icon: "school-outline", route: null },
 ] as const;
 

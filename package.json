@@ -38,7 +38,6 @@
     "web": "expo start --web --port 8190",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "lint": "expo lint",
     "postinstall": "node scripts/build-engine.mjs"
   },
   "private": true,

@@ -2,7 +2,7 @@
 
 [English version](README.en.md)
 
-Application Android d'échecs du club [RiaChess](https://riachess.fr). Le code (Expo / React Native) peut aussi être compilé pour iOS. Objectif : réunir dans une seule appli le jeu (à deux, contre l'ordinateur, en ligne), les problèmes, l'analyse des parties et l'apprentissage des ouvertures et des finales, avec le suivi pédagogique du club.
+Application Android d'échecs du club [RiaChess](https://riachess.fr). La version iPhone est dans [riachess-ios](https://github.com/riadh-mnasri/riachess-ios). Objectif : réunir dans une seule appli le jeu (à deux, contre l'ordinateur, en ligne), les problèmes, l'analyse des parties et l'apprentissage des ouvertures et des finales, avec le suivi pédagogique du club.
 
 ## Aperçu
 

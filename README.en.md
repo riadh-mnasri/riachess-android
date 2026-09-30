@@ -2,7 +2,7 @@
 
 [Version française](README.md)
 
-Android chess app by the [RiaChess](https://riachess.fr) club. The code (Expo / React Native) can also be built for iOS. The goal: one app for playing (pass and play, against the computer, online), puzzles, game analysis and learning openings and endgames, with the club's coaching follow-up.
+Android chess app by the [RiaChess](https://riachess.fr) club. The iPhone version lives in [riachess-ios](https://github.com/riadh-mnasri/riachess-ios). The goal: one app for playing (pass and play, against the computer, online), puzzles, game analysis and learning openings and endgames, with the club's coaching follow-up.
 
 ## Screenshots
 

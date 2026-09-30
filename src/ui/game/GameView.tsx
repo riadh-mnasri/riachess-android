@@ -82,7 +82,7 @@ export function GameView({
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
-  const boardSize = Math.floor(Math.min(width - 24, height - insets.top - insets.bottom - 330, 560));
+  const boardSize = Math.floor(Math.min(width - 24, height - insets.top - insets.bottom - 350, 560));
 
   const [pendingPromotion, setPendingPromotion] = useState<{ from: string; to: string } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -169,7 +169,7 @@ export function GameView({
   const hasMoves = game.sanHistory.length > 0;
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 12 }]}>
+    <View style={[styles.screen, { paddingTop: insets.top + 8, paddingBottom: 8 }]}>
       <View style={[styles.header, { width: boardSize }]}>
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
@@ -288,7 +288,7 @@ export function GameView({
       </View>
 
       {toast ? (
-        <View style={[styles.toast, { bottom: insets.bottom + 90 }]} pointerEvents="none">
+        <View style={[styles.toast, { bottom: 80 }]} pointerEvents="none">
           <Ionicons name="checkmark-circle" size={16} color={colors.success} />
           <Text style={styles.toastText}>{toast}</Text>
         </View>

@@ -68,7 +68,7 @@ export default function AnalysisScreen() {
   const params = useLocalSearchParams<{ pgn?: string }>();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
-  const boardSize = Math.floor(Math.min(width - 24, height - insets.top - insets.bottom - 300, 560));
+  const boardSize = Math.floor(Math.min(width - 24, height - insets.top - insets.bottom - 320, 560));
 
   const initial = useMemo(() => (params.pgn ? gameFromPgn(params.pgn) : null), [params.pgn]);
   const [game, setGame] = useState<GameState | null>(initial);
@@ -267,7 +267,7 @@ export default function AnalysisScreen() {
   };
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 8 }]}>
+    <View style={[styles.screen, { paddingTop: insets.top + 8, paddingBottom: 4 }]}>
       <EngineHost onReady={onEngineReady} />
       {header}
 

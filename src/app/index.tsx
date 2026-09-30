@@ -14,7 +14,7 @@ const HERO_FEN = "1n2kb1r/p4ppp/4q3/4p1B1/4P3/8/PPP2PPP/2KR4 w k - 0 17";
 const MODES = [
   { key: "bot", icon: "hardware-chip-outline", route: "/play/bot" },
   { key: "online", icon: "globe-outline", route: null },
-  { key: "puzzles", icon: "extension-puzzle-outline", route: null },
+  { key: "puzzles", icon: "extension-puzzle-outline", route: "/puzzles" },
   { key: "analysis", icon: "analytics-outline", route: "/analysis" },
   { key: "learn", icon: "school-outline", route: null },
 ] as const;
@@ -31,7 +31,7 @@ export default function Home() {
       style={styles.screen}
       contentContainerStyle={[
         styles.content,
-        { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 32 },
+        { paddingTop: insets.top + 20, paddingBottom: 24 },
       ]}
     >
       <View style={[styles.column, { width: contentWidth }]}>
@@ -104,9 +104,6 @@ export default function Home() {
           ))}
         </View>
 
-        <Text style={styles.footer}>
-          © {new Date().getFullYear()} Riadh MNASRI · {t.home.footer}
-        </Text>
       </View>
     </ScrollView>
   );
@@ -215,5 +212,4 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
-  footer: { color: colors.faint, fontSize: 12, textAlign: "center", marginTop: 8 },
 });
